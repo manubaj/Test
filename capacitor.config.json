@@ -1,0 +1,21 @@
+{
+  "appId": "com.celestial.horoscope",
+  "appName": "Celestial Horoscope",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0a0a1a",
+    "allowMixedContent": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0a0a1a",
+      "showSpinner": false,
+      "androidSpinnerStyle": "small",
+      "spinnerColor": "#ffd700"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Celestial Horoscope</string>
+    <string name="title_activity_main">Celestial Horoscope</string>
+    <string name="package_name">com.celestial.horoscope</string>
+    <string name="custom_url_scheme">com.celestial.horoscope</string>
+</resources>

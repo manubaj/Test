@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Celestial Horoscope</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Animated Star Background -->
+    <div class="stars-container">
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        <div class="shooting-stars"></div>
+    </div>
+
+    <!-- Cosmic Overlay -->
+    <div class="cosmic-overlay"></div>
+
+    <!-- App Container -->
+    <div id="app">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <div class="moon-icon">🌙</div>
+                <h1 class="app-title">Celestial</h1>
+            </div>
+            <p class="app-subtitle">Your Cosmic Guide to the Stars</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="home">
+                <span class="nav-icon">✨</span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-btn" data-page="zodiac">
+                <span class="nav-icon">♈</span>
+                <span class="nav-label">Zodiac</span>
+            </button>
+            <button class="nav-btn" data-page="horoscope">
+                <span class="nav-icon">🔮</span>
+                <span class="nav-label">Daily</span>
+            </button>
+            <button class="nav-btn" data-page="birthchart">
+                <span class="nav-icon">🌟</span>
+                <span class="nav-label">Birth Chart</span>
+            </button>
+            <button class="nav-btn" data-page="compatibility">
+                <span class="nav-icon">💫</span>
+                <span class="nav-label">Match</span>
+            </button>
+        </nav>
+
+        <!-- Pages Container -->
+        <main class="pages-container">
+            <!-- Home Page -->
+            <section id="home" class="page active">
+                <div class="page-content">
+                    <div class="hero-card">
+                        <div class="constellation-bg"></div>
+                        <div class="hero-content">
+                            <div class="current-date" id="currentDate"></div>
+                            <div class="moon-phase-display">
+                                <div class="moon-visual" id="moonVisual">🌓</div>
+                                <div class="moon-info">
+                                    <span class="moon-phase-name" id="moonPhaseName">Waxing Gibbous</span>
+                                    <span class="moon-message" id="moonMessage">Energy is building</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-zodiac-selector">
+                        <h2 class="section-title">Select Your Sign</h2>
+                        <div class="zodiac-wheel" id="zodiacWheel">
+                            <!-- Zodiac signs will be populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="daily-insight-card" id="dailyInsightCard">
+                        <h3 class="insight-title">Today's Cosmic Insight</h3>
+                        <p class="insight-text" id="insightText">Select your zodiac sign to receive your personalized cosmic guidance for today.</p>
+                        <div class="insight-stats" id="insightStats" style="display: none;">
+                            <div class="stat">
+                                <span class="stat-label">Love</span>
+                                <div class="stat-bar"><div class="stat-fill" id="loveStat"></div></div>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Career</span>
+                                <div class="stat-bar"><div class="stat-fill" id="careerStat"></div></div>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Health</span>
+                                <div class="stat-bar"><div class="stat-fill" id="healthStat"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="features-grid">
+                        <div class="feature-card" onclick="navigateTo('horoscope')">
+                            <div class="feature-icon">📜</div>
+                            <h4>Daily Reading</h4>
+                            <p>Your personalized horoscope</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('birthchart')">
+                            <div class="feature-icon">🗺️</div>
+                            <h4>Birth Chart</h4>
+                            <p>Map your celestial blueprint</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('compatibility')">
+                            <div class="feature-icon">💕</div>
+                            <h4>Compatibility</h4>
+                            <p>Find your cosmic match</p>
+                        </div>
+                        <div class="feature-card" onclick="navigateTo('zodiac')">
+                            <div class="feature-icon">⭐</div>
+                            <h4>Zodiac Guide</h4>
+                            <p>Explore all 12 signs</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Zodiac Signs Page -->
+            <section id="zodiac" class="page">
+                <div class="page-content">
+                    <h2 class="page-title">The Zodiac Circle</h2>
+                    <p class="page-description">Explore the celestial archetypes that guide our cosmic journey</p>
+                    
+                    <div class="zodiac-grid" id="zodiacGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Daily Horoscope Page -->
+            <section id="horoscope" class="page">
+                <div class="page-content">
+                    <h2 class="page-title">Daily Horoscope</h2>
+                    <p class="page-description">Your personalized cosmic guidance</p>
+                    
+                    <div class="sign-selector">
+                        <label class="selector-label">Choose Your Sign</label>
+                        <select id="horoscopeSignSelect" class="cosmic-select">
+                            <option value="">Select a sign...</option>
+                        </select>
+                    </div>
+
+                    <div class="horoscope-result" id="horoscopeResult" style="display: none;">
+                        <div class="horoscope-header">
+                            <span class="horoscope-sign-icon" id="horoscopeSignIcon"></span>
+                            <div class="horoscope-sign-info">
+                                <h3 id="horoscopeSignName"></h3>
+                                <span id="horoscopeDateRange"></span>
+                            </div>
+                        </div>
+
+                        <div class="horoscope-tabs">
+                            <button class="horoscope-tab active" data-period="daily">Today</button>
+                            <button class="horoscope-tab" data-period="weekly">This Week</button>
+                            <button class="horoscope-tab" data-period="monthly">This Month</button>
+                        </div>
+
+                        <div class="horoscope-content">
+                            <div class="horoscope-text" id="horoscopeText"></div>
+                            
+                            <div class="horoscope-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Lucky Number</span>
+                                    <span class="detail-value" id="luckyNumber"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Lucky Color</span>
+                                    <span class="detail-value color-dot" id="luckyColor"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Mood</span>
+                                    <span class="detail-value" id="mood"></span>
+                                </div>
+                            </div>
+
+                            <div class="cosmic-advice">
+                                <h4>🌟 Cosmic Advice</h4>
+                                <p id="cosmicAdvice"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Birth Chart Page -->
+            <section id="birthchart" class="page">
+                <div class="page-content">
+                    <h2 class="page-title">Birth Chart Calculator</h2>
+                    <p class="page-description">Discover your celestial blueprint based on your birth details</p>
+                    
+                    <div class="birth-form">
+                        <div class="form-group">
+                            <label>Birth Date</label>
+                            <input type="date" id="birthDate" class="cosmic-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Birth Time (if known)</label>
+                            <input type="time" id="birthTime" class="cosmic-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Birth Location</label>
+                            <input type="text" id="birthLocation" class="cosmic-input" placeholder="City, Country">
+                        </div>
+                        <button class="cosmic-btn" onclick="calculateBirthChart()">
+                            <span class="btn-icon">✨</span>
+                            Reveal My Chart
+                        </button>
+                    </div>
+
+                    <div class="birth-chart-result" id="birthChartResult" style="display: none;">
+                        <div class="chart-visual">
+                            <div class="chart-wheel" id="chartWheel">
+                                <!-- SVG chart will be rendered here -->
+                            </div>
+                        </div>
+
+                        <div class="big-three">
+                            <h3 class="section-title">Your Big Three</h3>
+                            <div class="big-three-cards">
+                                <div class="big-three-card sun">
+                                    <div class="planet-icon">☀️</div>
+                                    <span class="planet-name">Sun Sign</span>
+                                    <span class="sign-name" id="sunSign">-</span>
+                                    <p class="sign-meaning">Your core identity</p>
+                                </div>
+                                <div class="big-three-card moon">
+                                    <div class="planet-icon">🌙</div>
+                                    <span class="planet-name">Moon Sign</span>
+                                    <span class="sign-name" id="moonSign">-</span>
+                                    <p class="sign-meaning">Your emotional self</p>
+                                </div>
+                                <div class="big-three-card rising">
+                                    <div class="planet-icon">⬆️</div>
+                                    <span class="planet-name">Rising Sign</span>
+                                    <span class="sign-name" id="risingSign">-</span>
+                                    <p class="sign-meaning">Your outer persona</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="planetary-positions">
+                            <h3 class="section-title">Planetary Positions</h3>
+                            <div class="planets-list" id="planetsList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <div class="chart-interpretation" id="chartInterpretation">
+                            <!-- Interpretation will be added here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compatibility Page -->
+            <section id="compatibility" class="page">
+                <div class="page-content">
+                    <h2 class="page-title">Cosmic Compatibility</h2>
+                    <p class="page-description">Discover the celestial connection between two souls</p>
+                    
+                    <div class="compatibility-form">
+                        <div class="compatibility-signs">
+                            <div class="sign-picker">
+                                <label>Your Sign</label>
+                                <select id="yourSign" class="cosmic-select">
+                                    <option value="">Select...</option>
+                                </select>
+                                <div class="selected-sign-display" id="yourSignDisplay">
+                                    <span class="sign-symbol">?</span>
+                                </div>
+                            </div>
+
+                            <div class="heart-connector">
+                                <span class="heart-icon">💫</span>
+                            </div>
+
+                            <div class="sign-picker">
+                                <label>Partner's Sign</label>
+                                <select id="partnerSign" class="cosmic-select">
+                                    <option value="">Select...</option>
+                                </select>
+                                <div class="selected-sign-display" id="partnerSignDisplay">
+                                    <span class="sign-symbol">?</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="cosmic-btn" onclick="checkCompatibility()">
+                            <span class="btn-icon">🔮</span>
+                            Check Compatibility
+                        </button>
+                    </div>
+
+                    <div class="compatibility-result" id="compatibilityResult" style="display: none;">
+                        <div class="compatibility-score-container">
+                            <div class="score-ring" id="scoreRing">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="score-bg" cx="50" cy="50" r="45"/>
+                                    <circle class="score-fill" cx="50" cy="50" r="45" id="scoreFill"/>
+                                </svg>
+                                <div class="score-text">
+                                    <span class="score-number" id="compatScore">0</span>
+                                    <span class="score-label">%</span>
+                                </div>
+                            </div>
+                            <h3 class="compatibility-title" id="compatTitle">Cosmic Connection</h3>
+                        </div>
+
+                        <div class="compatibility-breakdown">
+                            <div class="compat-category">
+                                <span class="category-icon">❤️</span>
+                                <span class="category-name">Romance</span>
+                                <div class="category-bar"><div class="category-fill" id="romanceBar"></div></div>
+                                <span class="category-score" id="romanceScore">0%</span>
+                            </div>
+                            <div class="compat-category">
+                                <span class="category-icon">💬</span>
+                                <span class="category-name">Communication</span>
+                                <div class="category-bar"><div class="category-fill" id="commBar"></div></div>
+                                <span class="category-score" id="commScore">0%</span>
+                            </div>
+                            <div class="compat-category">
+                                <span class="category-icon">🤝</span>
+                                <span class="category-name">Trust</span>
+                                <div class="category-bar"><div class="category-fill" id="trustBar"></div></div>
+                                <span class="category-score" id="trustScore">0%</span>
+                            </div>
+                            <div class="compat-category">
+                                <span class="category-icon">🎯</span>
+                                <span class="category-name">Shared Values</span>
+                                <div class="category-bar"><div class="category-fill" id="valuesBar"></div></div>
+                                <span class="category-score" id="valuesScore">0%</span>
+                            </div>
+                        </div>
+
+                        <div class="compatibility-analysis" id="compatAnalysis">
+                            <!-- Analysis text will be added here -->
+                        </div>
+
+                        <div class="relationship-tips" id="relationshipTips">
+                            <h4>🌟 Tips for Your Relationship</h4>
+                            <ul id="tipsList"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Sign Detail Modal -->
+        <div class="modal" id="signModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <div class="modal-header" id="modalHeader">
+                    <span class="modal-icon" id="modalIcon"></span>
+                    <div class="modal-titles">
+                        <h2 id="modalTitle"></h2>
+                        <p id="modalDates"></p>
+                    </div>
+                </div>
+                <div class="modal-body" id="modalBody">
+                    <!-- Content populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1453 @@
+/* ================================
+   CELESTIAL HOROSCOPE - Cosmic Theme
+   ================================ */
+
+:root {
+    /* Cosmic Color Palette */
+    --cosmic-void: #0a0a1a;
+    --deep-space: #0d0d24;
+    --nebula-purple: #1a1a3e;
+    --stardust: #2d2d5a;
+    --cosmic-gold: #ffd700;
+    --celestial-gold: #f4c430;
+    --moonlight: #e8e8ff;
+    --starlight: #ffffff;
+    --aurora-blue: #4fc3f7;
+    --aurora-purple: #ba68c8;
+    --aurora-pink: #f48fb1;
+    --cosmic-teal: #26c6da;
+    --mystic-rose: #e91e63;
+    
+    /* Gradients */
+    --cosmic-gradient: linear-gradient(135deg, var(--cosmic-void) 0%, var(--nebula-purple) 50%, var(--deep-space) 100%);
+    --gold-gradient: linear-gradient(135deg, var(--cosmic-gold) 0%, var(--celestial-gold) 100%);
+    --aurora-gradient: linear-gradient(135deg, var(--aurora-blue) 0%, var(--aurora-purple) 50%, var(--aurora-pink) 100%);
+    
+    /* Spacing */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-2xl: 48px;
+    
+    /* Typography */
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Cormorant Garamond', serif;
+    
+    /* Border Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-xl: 30px;
+    --radius-full: 50%;
+    
+    /* Shadows */
+    --shadow-glow: 0 0 20px rgba(255, 215, 0, 0.3);
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --shadow-cosmic: 0 0 40px rgba(79, 195, 247, 0.2);
+}
+
+/* ================================
+   RESET & BASE
+   ================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--moonlight);
+    background: var(--cosmic-void);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================
+   ANIMATED STAR BACKGROUND
+   ================================ */
+.stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.stars, .stars2, .stars3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+.stars {
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, var(--starlight), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1px 1px at 90px 40px, var(--starlight), transparent),
+        radial-gradient(2px 2px at 160px 120px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 230px 80px, var(--starlight), transparent),
+        radial-gradient(2px 2px at 300px 150px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1.5px 1.5px at 50px 180px, var(--starlight), transparent),
+        radial-gradient(1px 1px at 120px 220px, rgba(255,255,255,0.7), transparent);
+    background-size: 350px 350px;
+    animation: twinkle 8s ease-in-out infinite;
+}
+
+.stars2 {
+    background-image: 
+        radial-gradient(1px 1px at 75px 45px, var(--aurora-blue), transparent),
+        radial-gradient(1.5px 1.5px at 145px 95px, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1px 1px at 200px 165px, var(--starlight), transparent),
+        radial-gradient(2px 2px at 280px 55px, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1px 1px at 320px 200px, var(--aurora-purple), transparent);
+    background-size: 400px 400px;
+    animation: twinkle 12s ease-in-out infinite;
+    animation-delay: -4s;
+}
+
+.stars3 {
+    background-image: 
+        radial-gradient(1.5px 1.5px at 180px 90px, var(--cosmic-gold), transparent),
+        radial-gradient(1px 1px at 260px 180px, rgba(255,255,255,0.9), transparent),
+        radial-gradient(2px 2px at 60px 140px, var(--starlight), transparent),
+        radial-gradient(1px 1px at 340px 60px, rgba(255,255,255,0.7), transparent);
+    background-size: 450px 450px;
+    animation: twinkle 15s ease-in-out infinite;
+    animation-delay: -8s;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.shooting-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.shooting-stars::before,
+.shooting-stars::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(to right, var(--starlight), transparent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--starlight), 0 0 20px var(--aurora-blue);
+    animation: shoot 8s ease-in-out infinite;
+}
+
+.shooting-stars::before {
+    top: 15%;
+    left: 90%;
+    animation-delay: 0s;
+}
+
+.shooting-stars::after {
+    top: 35%;
+    left: 85%;
+    animation-delay: 4s;
+}
+
+@keyframes shoot {
+    0% {
+        transform: translateX(0) translateY(0);
+        opacity: 1;
+    }
+    15% {
+        transform: translateX(-150px) translateY(80px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(-150px) translateY(80px);
+        opacity: 0;
+    }
+}
+
+.cosmic-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(ellipse at 20% 80%, rgba(138, 43, 226, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 20%, rgba(79, 195, 247, 0.1) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ================================
+   APP CONTAINER
+   ================================ */
+#app {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+/* ================================
+   HEADER
+   ================================ */
+.app-header {
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+    background: linear-gradient(180deg, rgba(10, 10, 26, 0.95) 0%, transparent 100%);
+    position: relative;
+    z-index: 10;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.moon-icon {
+    font-size: 2rem;
+    animation: glow 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 10px var(--cosmic-gold)); }
+    50% { filter: drop-shadow(0 0 20px var(--cosmic-gold)); }
+}
+
+.app-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 600;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+.app-subtitle {
+    font-size: 0.9rem;
+    color: rgba(232, 232, 255, 0.7);
+    margin-top: var(--space-xs);
+    letter-spacing: 2px;
+    font-style: italic;
+}
+
+/* ================================
+   BOTTOM NAVIGATION
+   ================================ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    background: rgba(10, 10, 26, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+    padding: var(--space-sm) var(--space-xs);
+    padding-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom));
+    z-index: 100;
+}
+
+.nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    color: rgba(232, 232, 255, 0.5);
+    padding: var(--space-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    min-width: 60px;
+}
+
+.nav-btn.active {
+    color: var(--cosmic-gold);
+}
+
+.nav-btn.active::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background: var(--gold-gradient);
+    border-radius: 2px;
+}
+
+.nav-icon {
+    font-size: 1.4rem;
+    transition: transform 0.3s ease;
+}
+
+.nav-btn.active .nav-icon {
+    transform: scale(1.1);
+}
+
+.nav-label {
+    font-size: 0.7rem;
+    font-family: var(--font-display);
+    letter-spacing: 0.5px;
+}
+
+/* ================================
+   PAGES CONTAINER
+   ================================ */
+.pages-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 80px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.page {
+    display: none;
+    min-height: 100%;
+    animation: fadeIn 0.4s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-content {
+    padding: var(--space-md);
+    padding-top: 0;
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    text-align: center;
+    margin-bottom: var(--space-sm);
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-description {
+    text-align: center;
+    color: rgba(232, 232, 255, 0.7);
+    margin-bottom: var(--space-lg);
+    font-style: italic;
+}
+
+.section-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-md);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* ================================
+   HOME PAGE - HERO CARD
+   ================================ */
+.hero-card {
+    background: linear-gradient(135deg, rgba(45, 45, 90, 0.6) 0%, rgba(26, 26, 62, 0.8) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    margin-bottom: var(--space-lg);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    box-shadow: var(--shadow-card);
+}
+
+.constellation-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='20' cy='30' r='1' fill='%23ffd700'/%3E%3Ccircle cx='40' cy='20' r='1.5' fill='%23ffd700'/%3E%3Ccircle cx='60' cy='35' r='1' fill='%23ffd700'/%3E%3Ccircle cx='80' cy='25' r='1.2' fill='%23ffd700'/%3E%3Cline x1='20' y1='30' x2='40' y2='20' stroke='%23ffd700' stroke-width='0.3'/%3E%3Cline x1='40' y1='20' x2='60' y2='35' stroke='%23ffd700' stroke-width='0.3'/%3E%3Cline x1='60' y1='35' x2='80' y2='25' stroke='%23ffd700' stroke-width='0.3'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.current-date {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: rgba(232, 232, 255, 0.7);
+    margin-bottom: var(--space-md);
+    letter-spacing: 2px;
+}
+
+.moon-phase-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+}
+
+.moon-visual {
+    font-size: 3.5rem;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.5));
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.moon-info {
+    text-align: left;
+}
+
+.moon-phase-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--moonlight);
+}
+
+.moon-message {
+    display: block;
+    font-size: 0.9rem;
+    color: rgba(232, 232, 255, 0.6);
+    font-style: italic;
+}
+
+/* ================================
+   ZODIAC WHEEL SELECTOR
+   ================================ */
+.quick-zodiac-selector {
+    margin-bottom: var(--space-lg);
+}
+
+.zodiac-wheel {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-sm);
+}
+
+.zodiac-wheel-item {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(45, 45, 90, 0.4);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.zodiac-wheel-item:hover,
+.zodiac-wheel-item.selected {
+    background: rgba(255, 215, 0, 0.15);
+    border-color: var(--cosmic-gold);
+    transform: scale(1.05);
+    box-shadow: var(--shadow-glow);
+}
+
+.zodiac-wheel-item .symbol {
+    font-size: 1.5rem;
+}
+
+.zodiac-wheel-item .name {
+    font-size: 0.6rem;
+    font-family: var(--font-display);
+    color: rgba(232, 232, 255, 0.7);
+    margin-top: 2px;
+}
+
+/* ================================
+   DAILY INSIGHT CARD
+   ================================ */
+.daily-insight-card {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(45, 45, 90, 0.4) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border: 1px solid rgba(186, 104, 200, 0.3);
+    box-shadow: var(--shadow-cosmic);
+}
+
+.insight-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--aurora-purple);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.insight-text {
+    text-align: center;
+    line-height: 1.8;
+    color: var(--moonlight);
+}
+
+.insight-stats {
+    margin-top: var(--space-lg);
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.stat-label {
+    min-width: 60px;
+    font-size: 0.85rem;
+    color: rgba(232, 232, 255, 0.7);
+}
+
+.stat-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.stat-fill {
+    height: 100%;
+    background: var(--aurora-gradient);
+    border-radius: 3px;
+    transition: width 1s ease;
+}
+
+/* ================================
+   FEATURES GRID
+   ================================ */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.feature-card {
+    background: rgba(45, 45, 90, 0.4);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    text-align: center;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.3);
+    transform: translateY(-3px);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-sm);
+}
+
+.feature-card h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-xs);
+}
+
+.feature-card p {
+    font-size: 0.8rem;
+    color: rgba(232, 232, 255, 0.6);
+}
+
+/* ================================
+   ZODIAC GRID
+   ================================ */
+.zodiac-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.zodiac-card {
+    background: linear-gradient(135deg, rgba(45, 45, 90, 0.5) 0%, rgba(26, 26, 62, 0.6) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.zodiac-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.zodiac-card:hover::before {
+    opacity: 1;
+}
+
+.zodiac-card:hover {
+    border-color: var(--cosmic-gold);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-glow);
+}
+
+.zodiac-card .symbol {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+    display: block;
+}
+
+.zodiac-card .name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--cosmic-gold);
+    display: block;
+    margin-bottom: var(--space-xs);
+}
+
+.zodiac-card .dates {
+    font-size: 0.75rem;
+    color: rgba(232, 232, 255, 0.5);
+}
+
+.zodiac-card .element {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
+/* ================================
+   FORM ELEMENTS
+   ================================ */
+.cosmic-input,
+.cosmic-select {
+    width: 100%;
+    padding: var(--space-md);
+    background: rgba(45, 45, 90, 0.5);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--moonlight);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.cosmic-input:focus,
+.cosmic-select:focus {
+    outline: none;
+    border-color: var(--cosmic-gold);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+}
+
+.cosmic-select option {
+    background: var(--deep-space);
+    color: var(--moonlight);
+}
+
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 1px;
+}
+
+.sign-selector {
+    margin-bottom: var(--space-xl);
+}
+
+.selector-label {
+    display: block;
+    text-align: center;
+    font-family: var(--font-display);
+    color: rgba(232, 232, 255, 0.7);
+    margin-bottom: var(--space-md);
+}
+
+/* ================================
+   COSMIC BUTTON
+   ================================ */
+.cosmic-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--gold-gradient);
+    border: none;
+    border-radius: var(--radius-xl);
+    color: var(--cosmic-void);
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.cosmic-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+}
+
+.cosmic-btn:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+}
+
+/* ================================
+   HOROSCOPE PAGE
+   ================================ */
+.horoscope-result {
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.horoscope-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-lg);
+    background: rgba(45, 45, 90, 0.4);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.horoscope-sign-icon {
+    font-size: 3rem;
+}
+
+.horoscope-sign-info h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--cosmic-gold);
+}
+
+.horoscope-sign-info span {
+    font-size: 0.85rem;
+    color: rgba(232, 232, 255, 0.6);
+}
+
+.horoscope-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+}
+
+.horoscope-tab {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(45, 45, 90, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    border-radius: var(--radius-md);
+    color: rgba(232, 232, 255, 0.6);
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.horoscope-tab.active {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: var(--cosmic-gold);
+    color: var(--cosmic-gold);
+}
+
+.horoscope-content {
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.horoscope-text {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    margin-bottom: var(--space-lg);
+    text-align: center;
+}
+
+.horoscope-details {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.detail-item {
+    text-align: center;
+    padding: var(--space-md);
+    background: rgba(26, 26, 62, 0.5);
+    border-radius: var(--radius-md);
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(232, 232, 255, 0.5);
+    margin-bottom: var(--space-xs);
+}
+
+.detail-value {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--cosmic-gold);
+}
+
+.color-dot {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.cosmic-advice {
+    background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(79, 195, 247, 0.1) 100%);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+.cosmic-advice h4 {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--aurora-purple);
+    margin-bottom: var(--space-sm);
+}
+
+.cosmic-advice p {
+    font-style: italic;
+    color: rgba(232, 232, 255, 0.8);
+}
+
+/* ================================
+   BIRTH CHART PAGE
+   ================================ */
+.birth-form {
+    margin-bottom: var(--space-xl);
+}
+
+.birth-chart-result {
+    animation: fadeIn 0.5s ease;
+}
+
+.chart-visual {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--space-xl);
+}
+
+.chart-wheel {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(45, 45, 90, 0.3) 0%, rgba(26, 26, 62, 0.6) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    position: relative;
+    box-shadow: var(--shadow-cosmic);
+}
+
+.big-three-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+    margin-bottom: var(--space-xl);
+}
+
+.big-three-card {
+    background: rgba(45, 45, 90, 0.4);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    text-align: center;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+}
+
+.big-three-card.sun {
+    border-color: rgba(255, 200, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 200, 0, 0.1) 0%, rgba(45, 45, 90, 0.4) 100%);
+}
+
+.big-three-card.moon {
+    border-color: rgba(200, 200, 255, 0.4);
+    background: linear-gradient(135deg, rgba(200, 200, 255, 0.1) 0%, rgba(45, 45, 90, 0.4) 100%);
+}
+
+.big-three-card.rising {
+    border-color: rgba(255, 100, 150, 0.4);
+    background: linear-gradient(135deg, rgba(255, 100, 150, 0.1) 0%, rgba(45, 45, 90, 0.4) 100%);
+}
+
+.planet-icon {
+    font-size: 1.8rem;
+    margin-bottom: var(--space-xs);
+}
+
+.planet-name {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(232, 232, 255, 0.5);
+    margin-bottom: var(--space-xs);
+}
+
+.big-three-card .sign-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-xs);
+}
+
+.sign-meaning {
+    font-size: 0.7rem;
+    color: rgba(232, 232, 255, 0.4);
+    font-style: italic;
+}
+
+.planetary-positions {
+    margin-bottom: var(--space-xl);
+}
+
+.planets-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.planet-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-sm);
+}
+
+.planet-item .icon {
+    font-size: 1.3rem;
+    min-width: 30px;
+    text-align: center;
+}
+
+.planet-item .planet-label {
+    flex: 1;
+    color: rgba(232, 232, 255, 0.7);
+}
+
+.planet-item .planet-sign {
+    font-family: var(--font-display);
+    color: var(--cosmic-gold);
+}
+
+.chart-interpretation {
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.chart-interpretation h4 {
+    font-family: var(--font-display);
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.chart-interpretation p {
+    line-height: 1.8;
+    color: rgba(232, 232, 255, 0.8);
+    text-align: center;
+}
+
+/* ================================
+   COMPATIBILITY PAGE
+   ================================ */
+.compatibility-form {
+    margin-bottom: var(--space-xl);
+}
+
+.compatibility-signs {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.sign-picker {
+    flex: 1;
+    max-width: 150px;
+    text-align: center;
+}
+
+.sign-picker label {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: rgba(232, 232, 255, 0.6);
+    margin-bottom: var(--space-sm);
+}
+
+.selected-sign-display {
+    width: 80px;
+    height: 80px;
+    margin: var(--space-md) auto 0;
+    background: rgba(45, 45, 90, 0.5);
+    border: 2px solid rgba(255, 215, 0, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.selected-sign-display .sign-symbol {
+    font-size: 2.5rem;
+}
+
+.heart-connector {
+    margin-top: var(--space-2xl);
+}
+
+.heart-icon {
+    font-size: 1.5rem;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+.compatibility-result {
+    animation: slideUp 0.5s ease;
+}
+
+.compatibility-score-container {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.score-ring {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto var(--space-md);
+    position: relative;
+}
+
+.score-ring svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.score-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 8;
+}
+
+.score-fill {
+    fill: none;
+    stroke: url(#scoreGradient);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 283;
+    transition: stroke-dashoffset 1.5s ease;
+}
+
+.score-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.score-number {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    color: var(--cosmic-gold);
+    display: block;
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 1rem;
+    color: rgba(232, 232, 255, 0.6);
+}
+
+.compatibility-title {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--aurora-purple);
+}
+
+.compatibility-breakdown {
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.compat-category {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.compat-category:last-child {
+    margin-bottom: 0;
+}
+
+.category-icon {
+    font-size: 1.2rem;
+    min-width: 25px;
+}
+
+.category-name {
+    min-width: 100px;
+    font-size: 0.9rem;
+    color: rgba(232, 232, 255, 0.7);
+}
+
+.category-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.category-fill {
+    height: 100%;
+    background: var(--aurora-gradient);
+    border-radius: 4px;
+    transition: width 1s ease;
+    width: 0;
+}
+
+.category-score {
+    min-width: 40px;
+    text-align: right;
+    font-family: var(--font-display);
+    color: var(--cosmic-gold);
+}
+
+.compatibility-analysis {
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    text-align: center;
+}
+
+.compatibility-analysis h4 {
+    font-family: var(--font-display);
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-md);
+}
+
+.compatibility-analysis p {
+    line-height: 1.8;
+    color: rgba(232, 232, 255, 0.8);
+}
+
+.relationship-tips {
+    background: linear-gradient(135deg, rgba(79, 195, 247, 0.1) 0%, rgba(186, 104, 200, 0.1) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    border: 1px solid rgba(79, 195, 247, 0.2);
+}
+
+.relationship-tips h4 {
+    font-family: var(--font-display);
+    color: var(--aurora-blue);
+    margin-bottom: var(--space-md);
+    text-align: center;
+}
+
+.relationship-tips ul {
+    list-style: none;
+}
+
+.relationship-tips li {
+    padding: var(--space-sm) 0;
+    padding-left: var(--space-lg);
+    position: relative;
+    color: rgba(232, 232, 255, 0.8);
+}
+
+.relationship-tips li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--cosmic-gold);
+}
+
+/* ================================
+   MODAL
+   ================================ */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 26, 0.95);
+    z-index: 1000;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    min-height: 100%;
+    padding: var(--space-lg);
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-2xl);
+}
+
+.modal-close {
+    position: fixed;
+    top: var(--space-md);
+    right: var(--space-md);
+    width: 40px;
+    height: 40px;
+    background: rgba(45, 45, 90, 0.8);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 50%;
+    color: var(--moonlight);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    padding: var(--space-lg);
+    background: rgba(45, 45, 90, 0.4);
+    border-radius: var(--radius-lg);
+}
+
+.modal-icon {
+    font-size: 3.5rem;
+}
+
+.modal-titles h2 {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-titles p {
+    color: rgba(232, 232, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+.modal-body {
+    space-y: var(--space-lg);
+}
+
+.modal-section {
+    background: rgba(45, 45, 90, 0.3);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.modal-section h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    color: var(--cosmic-gold);
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.modal-section p,
+.modal-section li {
+    color: rgba(232, 232, 255, 0.8);
+    line-height: 1.8;
+}
+
+.modal-section ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.modal-section li {
+    padding: var(--space-xs) 0;
+    padding-left: var(--space-md);
+    position: relative;
+}
+
+.modal-section li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--cosmic-gold);
+}
+
+.traits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+}
+
+.trait-item {
+    background: rgba(26, 26, 62, 0.5);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md);
+    text-align: center;
+}
+
+.trait-label {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(232, 232, 255, 0.5);
+    margin-bottom: var(--space-xs);
+}
+
+.trait-value {
+    font-family: var(--font-display);
+    color: var(--aurora-blue);
+}
+
+/* ================================
+   SCROLLBAR
+   ================================ */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 215, 0, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 215, 0, 0.5);
+}
+
+/* ================================
+   RESPONSIVE
+   ================================ */
+@media (min-width: 480px) {
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .zodiac-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .zodiac-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .page-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
