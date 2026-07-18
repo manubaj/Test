@@ -1,0 +1,1 @@
+"""Reusable mocks for Ollama, crawler, and external HTTP services."""
