@@ -1,0 +1,4 @@
+# Module 2+ runtime dependencies (grows with later modules)
+# Install: pip3 install -r requirements.txt
+
+SQLAlchemy>=2.0,<3.0

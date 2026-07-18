@@ -12,9 +12,9 @@ the next begins.
 
 | #  | Module              | Status                          |
 |----|---------------------|---------------------------------|
-| 1  | Folder structure    | **In review**                   |
-| 2  | Database models     | Pending approval of Module 1    |
-| 3  | Configuration       | Pending                         |
+| 1  | Folder structure    | Approved                        |
+| 2  | Database models     | **In review**                   |
+| 3  | Configuration       | Pending approval of Module 2    |
 | 4  | FastAPI setup       | Pending                         |
 | 5  | Crawling engine     | Pending                         |
 | 6  | AI Agents           | Pending                         |
@@ -30,11 +30,19 @@ the next begins.
 Clean-architecture layout under `app/` plus frontend, tests, Docker, and docs
 placeholders. See [docs/MODULE_01_FOLDER_STRUCTURE.md](docs/MODULE_01_FOLDER_STRUCTURE.md).
 
-### Verify Module 1
-
 ```bash
 python3 scripts/verify_structure.py
-python3 -c "import app; print(app.__app_name__, app.__version__)"
+```
+
+## Module 2 — Database models
+
+SQLAlchemy 2.0 models for `companies`, `analysis`, `contacts`, `technologies`,
+`lead_scores`, `crawl_logs`, `jobs`, `reports`, `users`, `settings`.
+See [docs/MODULE_02_DATABASE_MODELS.md](docs/MODULE_02_DATABASE_MODELS.md).
+
+```bash
+pip3 install -r requirements.txt
+python3 scripts/verify_models.py
 ```
 
 ## Stack (planned)
