@@ -1,0 +1,6 @@
+# Optional local ML / browser extras
+-r requirements.txt
+playwright>=1.49.0
+sentence-transformers>=3.0.0
+faiss-cpu>=1.9.0
+spacy>=3.8.0

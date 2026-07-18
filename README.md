@@ -1,53 +1,205 @@
-# AI Sales Intelligence Platform
+# SignalForge — AI Sales Intelligence Platform
 
-Production-oriented platform that identifies companies likely to need ERP-related
-services (IFS, SAP, Oracle, Infor, Microsoft Dynamics) using local/open-source
-inference (Ollama, FAISS, Sentence Transformers, spaCy) with optional OpenAI
-swap via configuration.
+Identify companies likely to need **IFS**, **SAP**, **Oracle**, **Infor**, or **Microsoft Dynamics** services using a local-first AI stack (Ollama + heuristic agents). No paid OpenAI key is required.
 
-## Development approach
+## Quick start (Windows — recommended)
 
-The project is built **module by module**. Each module must be approved before
-the next begins.
+### Prerequisites
 
-| #  | Module              | Status                          |
-|----|---------------------|---------------------------------|
-| 1  | Folder structure    | Approved                        |
-| 2  | Database models     | **In review**                   |
-| 3  | Configuration       | Pending approval of Module 2    |
-| 4  | FastAPI setup       | Pending                         |
-| 5  | Crawling engine     | Pending                         |
-| 6  | AI Agents           | Pending                         |
-| 7  | LangGraph workflow  | Pending                         |
-| 8  | REST APIs           | Pending                         |
-| 9  | React frontend      | Pending                         |
-| 10 | Docker              | Pending                         |
-| 11 | Testing             | Pending                         |
-| 12 | Deployment          | Pending                         |
+1. [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/) installed and running  
+2. Git  
+3. At least 8 GB RAM free (16 GB recommended if you pull an Ollama model)
 
-## Module 1 — Folder structure
+### Run the full stack
 
-Clean-architecture layout under `app/` plus frontend, tests, Docker, and docs
-placeholders. See [docs/MODULE_01_FOLDER_STRUCTURE.md](docs/MODULE_01_FOLDER_STRUCTURE.md).
+```powershell
+git clone <your-repo-url>
+cd Test
 
-```bash
-python3 scripts/verify_structure.py
+# Create env file (PowerShell)
+copy .env.example .env
+
+# Start everything
+docker compose up --build
 ```
 
-## Module 2 — Database models
+When healthy:
 
-SQLAlchemy 2.0 models for `companies`, `analysis`, `contacts`, `technologies`,
-`lead_scores`, `crawl_logs`, `jobs`, `reports`, `users`, `settings`.
-See [docs/MODULE_02_DATABASE_MODELS.md](docs/MODULE_02_DATABASE_MODELS.md).
+| Service   | URL                                      |
+|-----------|------------------------------------------|
+| Frontend  | http://localhost:3000                    |
+| API docs  | http://localhost:8000/docs               |
+| Backend   | http://localhost:8000/api/v1/health      |
+| pgAdmin   | http://localhost:5050 (`admin@example.com` / `admin`) |
+| Ollama    | http://localhost:11434                   |
 
-```bash
-pip3 install -r requirements.txt
-python3 scripts/verify_models.py
+### Login
+
+- Email: `admin@example.com`  
+- Password: `Admin123!`  
+- Optional API key header: `X-API-Key: dev-api-key-change-me`
+
+### First analysis
+
+1. Open http://localhost:3000 and sign in  
+2. Add a company with a real website (e.g. a manufacturer’s public site)  
+3. Click **Run full analysis**  
+4. Review lead score, ERP detection, tech stack, hiring, decision makers, report  
+5. Export CSV / Excel from the dashboard  
+
+### Optional: pull a local LLM model
+
+Agents work offline with rule-based detection. To enable Ollama summaries:
+
+```powershell
+docker exec -it aisales-ollama ollama pull llama3.2
 ```
 
-## Stack (planned)
+### Switch to OpenAI later (config only)
 
-- **Backend:** Python 3.12+, FastAPI, SQLAlchemy, PostgreSQL, Alembic, Pydantic
-- **AI:** LangGraph, Ollama (OpenAI-compatible via config), FAISS, Sentence Transformers, spaCy
-- **Frontend:** React + TypeScript
-- **Ops:** Docker Compose (PostgreSQL, pgAdmin, Ollama, backend, frontend)
+Edit `.env`:
+
+```env
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Restart backend: `docker compose up -d backend`
+
+---
+
+## Architecture
+
+```text
+React (SignalForge UI)
+        │
+        ▼
+FastAPI REST (/api/v1) + JWT / API Key + RBAC + rate limits
+        │
+        ▼
+AnalysisService → LangGraph workflow
+        │
+        ├─ Website Intelligence (crawl)
+        ├─ Technology Detection
+        ├─ ERP Opportunity Detection
+        ├─ Hiring Intelligence
+        ├─ Decision Maker Finder
+        ├─ Lead Scoring
+        └─ Report Generator
+        │
+        ▼
+PostgreSQL (companies, analysis, contacts, technologies, …)
+        │
+Ollama (optional local LLM) / OpenAI (optional)
+```
+
+Clean architecture layout:
+
+```text
+app/
+  api/          REST routers + auth dependencies
+  agents/       7 AI agents + LangGraph workflow
+  services/     crawler, analysis orchestration, export
+  repositories/ data access
+  models/       SQLAlchemy ORM
+  schemas/      Pydantic contracts
+  database/     engine/session/base
+  core/         settings, security, logging
+frontend/       React + TypeScript dashboard
+docker/         Dockerfiles
+```
+
+---
+
+## Local development (without Docker for app code)
+
+### Backend (Windows PowerShell)
+
+```powershell
+# Python 3.12+
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+pip install fastapi "uvicorn[standard]" pydantic pydantic-settings email-validator `
+  SQLAlchemy asyncpg alembic greenlet "python-jose[cryptography]" "passlib[bcrypt]" `
+  "bcrypt>=4.0.1,<4.1.0" httpx beautifulsoup4 lxml langgraph langchain-core openpyxl `
+  pytest pytest-asyncio
+
+# Point DB at local Postgres (or keep Docker only for Postgres)
+copy .env.example .env
+# Set DATABASE_URL=postgresql+asyncpg://aisales:aisales_secret@localhost:5432/aisales
+
+docker compose up -d postgres ollama
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Swagger: http://localhost:8000/docs
+
+### Frontend
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+UI: http://localhost:5173
+
+### Tests
+
+```powershell
+pytest -q
+```
+
+### Structure / model checks
+
+```powershell
+python scripts/verify_structure.py
+python scripts/verify_models.py
+```
+
+---
+
+## REST API highlights
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/api/v1/auth/login` | JWT login |
+| GET | `/api/v1/companies` | Search (name, website, country, industry, technology, ERP, revenue, size) |
+| POST | `/api/v1/companies` | Create company |
+| POST | `/api/v1/analysis` | Run full multi-agent analysis |
+| GET | `/api/v1/companies/{id}/intelligence` | Dashboard bundle |
+| POST | `/api/v1/website/analyze` | Crawl preview |
+| GET | `/api/v1/export/csv` | Export CSV |
+| GET | `/api/v1/export/excel` | Export Excel |
+
+Full interactive docs: `/docs` (Swagger) and `/redoc`.
+
+---
+
+## Security
+
+- JWT Bearer authentication  
+- Role-based access (`admin`, `analyst`, `viewer`)  
+- API key support via `X-API-Key`  
+- In-memory rate limiting  
+- Pydantic input validation  
+- Structured error responses  
+
+---
+
+## Documentation index
+
+- [Installation Guide](docs/INSTALLATION.md)  
+- [Architecture](docs/ARCHITECTURE.md)  
+- [API Documentation](docs/API.md)  
+- [Environment Variables](docs/ENVIRONMENT.md)  
+- [Deployment Guide](docs/DEPLOYMENT.md)  
+- Module notes: `docs/MODULE_01_*.md`, `docs/MODULE_02_*.md`
+
+---
+
+## Opportunity coverage
+
+IFS Implementation / Upgrade / Cloud Migration / Managed Support · SAP S/4HANA Migration / Support · Infor Upgrade · Oracle ERP Migration · ERP Digital Transformation · ERP Performance Optimization

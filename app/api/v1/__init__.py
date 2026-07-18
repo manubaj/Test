@@ -1,4 +1,5 @@
-"""API version 1 router aggregation.
+"""API version 1 router aggregation."""
 
-All public REST endpoints are mounted under /api/v1.
-"""
+from app.api.v1.router import api_router
+
+__all__ = ["api_router"]

@@ -1,0 +1,101 @@
+# AI Sales Intelligence Platform — one-command stack
+# Windows / macOS / Linux:
+#   docker compose up --build
+#
+# Services:
+#   frontend  http://localhost:3000
+#   backend   http://localhost:8000  (Swagger: /docs)
+#   postgres  localhost:5432
+#   pgadmin   http://localhost:5050
+#   ollama    http://localhost:11434
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aisales-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aisales}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aisales_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-aisales}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aisales} -d ${POSTGRES_DB:-aisales}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: aisales-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: aisales-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # On Windows with NVIDIA GPU + Docker Desktop, uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: aisales-backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aisales}:${POSTGRES_PASSWORD:-aisales_secret}@postgres:5432/${POSTGRES_DB:-aisales}
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173,http://frontend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000/api/v1
+    container_name: aisales-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  ollama_data:
