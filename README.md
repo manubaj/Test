@@ -35,24 +35,28 @@ When healthy:
 
 ## Login troubleshooting
 
-Use these credentials (exact email):
+Open **http://localhost:3000** (or http://127.0.0.1:3000). The login page shows API status.
+
+Credentials (exact):
 
 - Email: `admin@example.com`
 - Password: `Admin123!`
 
-Not `admin@aisales.local`.
+Full reset + rebuild:
 
 ```bash
-# Rebuild after pulling login fixes
+git checkout main
 git pull origin main
+docker compose down
 docker compose up --build -d
-
-# Diagnose
-chmod +x scripts/diagnose-login.sh
+# wait until ready:
+curl -s http://127.0.0.1:8000/api/v1/ready
 ./scripts/diagnose-login.sh
 ```
 
-If curl login works but the UI does not, hard-refresh the browser (Ctrl+Shift+R).
+If `curl` login returns `"access_token"` but the browser still fails, hard-refresh (`Ctrl+Shift+R`).
+Paste the `diagnose-login.sh` output if it still fails.
+
 
 
 ### First analysis

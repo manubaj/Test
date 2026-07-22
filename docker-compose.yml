@@ -1,5 +1,5 @@
 # AI Sales Intelligence Platform — one-command stack
-# Windows / macOS / Linux:
+# Linux / Windows / macOS:
 #   docker compose up --build
 #
 # Services:
@@ -7,7 +7,7 @@
 #   backend   http://localhost:8000  (Swagger: /docs)
 #   postgres  localhost:5432
 #   pgadmin   http://localhost:5050
-#   ollama    http://localhost:11434
+#   ollama    optional — docker compose --profile ai up --build
 
 services:
   postgres:
@@ -25,7 +25,7 @@ services:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aisales} -d ${POSTGRES_DB:-aisales}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
 
   pgadmin:
     image: dpage/pgadmin4:8
@@ -43,18 +43,11 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: aisales-ollama
+    profiles: ["ai"]
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
-    # On Windows with NVIDIA GPU + Docker Desktop, uncomment:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
 
   backend:
     build:
@@ -63,7 +56,7 @@ services:
     container_name: aisales-backend
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-aisales}:${POSTGRES_PASSWORD:-aisales_secret}@postgres:5432/${POSTGRES_DB:-aisales}
-      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
       LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
       CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://frontend
       SECRET_KEY: ${SECRET_KEY:-windows-dev-secret-key-change-me-32chars-min}
@@ -80,21 +73,19 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      ollama:
-        condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
-      interval: 10s
+      # Require DB + admin seed (not just process up)
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/ready"]
+      interval: 5s
       timeout: 5s
-      retries: 12
-      start_period: 20s
+      retries: 30
+      start_period: 15s
 
   frontend:
     build:
       context: .
       dockerfile: docker/frontend/Dockerfile
       args:
-        # Same-origin path — browser calls :3000/api/v1, nginx proxies to backend
         VITE_API_BASE_URL: /api/v1
     container_name: aisales-frontend
     ports:

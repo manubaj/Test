@@ -1,5 +1,6 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 
 export default function LoginPage() {
@@ -8,6 +9,32 @@ export default function LoginPage() {
   const [password, setPassword] = useState("Admin123!");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [apiStatus, setApiStatus] = useState<string>("checking API…");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const ready = await api.ready();
+        if (cancelled) return;
+        setApiStatus(
+          ready.admin_seeded
+            ? `API ready · admin ${ready.admin_email}`
+            : `API up but admin missing · ${ready.admin_email}`
+        );
+      } catch (err) {
+        if (cancelled) return;
+        setApiStatus(
+          err instanceof Error
+            ? `API error: ${err.message}`
+            : "API unreachable"
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (token) return <Navigate to="/" replace />;
 
@@ -16,7 +43,7 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await login(email, password);
+      await login(email.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -35,6 +62,14 @@ export default function LoginPage() {
           Sign in to search companies, run website intelligence, and export
           scored ERP leads.
         </p>
+        <p
+          className="muted"
+          style={{ fontSize: "0.8rem", fontFamily: "var(--font-mono)" }}
+        >
+          {apiStatus}
+          <br />
+          API base: {api.apiBase}
+        </p>
         <div className="stack">
           <input
             type="email"
@@ -42,6 +77,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             required
+            autoComplete="username"
           />
           <input
             type="password"
@@ -49,6 +85,7 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             required
+            autoComplete="current-password"
           />
           {error && <p className="error">{error}</p>}
           <button className="btn btn-primary" type="submit" disabled={loading}>
@@ -56,7 +93,8 @@ export default function LoginPage() {
           </button>
         </div>
         <p className="muted" style={{ marginTop: "1rem", fontSize: "0.85rem" }}>
-          Default admin: admin@example.com / Admin123!
+          Default admin: <strong>admin@example.com</strong> /{" "}
+          <strong>Admin123!</strong>
         </p>
       </form>
     </div>
