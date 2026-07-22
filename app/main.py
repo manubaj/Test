@@ -28,12 +28,26 @@ logger = get_logger(__name__)
 
 
 async def bootstrap_admin() -> None:
-    """Ensure a default admin user exists for first-run demos."""
+    """Ensure a default admin user exists for first-run demos.
+
+    If the admin already exists, refresh the password hash from env so Docker
+    rebuilds / bcrypt library upgrades do not leave an unusable account.
+    """
     settings = get_settings()
     async with AsyncSessionLocal() as session:
         users = UserRepository(session)
         existing = await users.get_by_email(settings.bootstrap_admin_email.lower())
         if existing:
+            # Keep demo credentials in sync with .env / compose defaults
+            if settings.is_development:
+                existing.hashed_password = hash_password(settings.bootstrap_admin_password)
+                existing.api_key_hash = hash_api_key(settings.bootstrap_admin_api_key)
+                existing.is_active = True
+                await session.commit()
+                logger.info(
+                    "Bootstrap admin password refreshed email=%s",
+                    settings.bootstrap_admin_email,
+                )
             return
         admin = User(
             email=settings.bootstrap_admin_email.lower(),

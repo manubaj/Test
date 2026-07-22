@@ -1,5 +1,8 @@
 """
 Security helpers: password hashing, JWT creation/validation, API key hashing.
+
+Uses the ``bcrypt`` library directly (avoids known passlib/bcrypt version
+compatibility issues that can break login after Docker rebuilds).
 """
 
 from __future__ import annotations
@@ -10,25 +13,29 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 from uuid import UUID
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import get_settings
 from app.core.exceptions import UnauthorizedError
 
-# bcrypt via passlib — production-safe password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
 def hash_password(password: str) -> str:
     """Hash a plaintext password for storage."""
-    return pwd_context.hash(password)
+    # bcrypt has a 72-byte input limit; truncate defensively for safety
+    raw = password.encode("utf-8")[:72]
+    return bcrypt.hashpw(raw, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Constant-time password verification."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        raw = plain_password.encode("utf-8")[:72]
+        return bcrypt.checkpw(raw, hashed_password.encode("utf-8"))
+    except (ValueError, TypeError):
+        return False
 
 
 def hash_api_key(api_key: str) -> str:

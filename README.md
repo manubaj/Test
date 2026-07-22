@@ -33,11 +33,27 @@ When healthy:
 | pgAdmin   | http://localhost:5050 (`admin@example.com` / `admin`) |
 | Ollama    | http://localhost:11434                   |
 
-### Login
+## Login troubleshooting
 
-- Email: `admin@example.com`  
-- Password: `Admin123!`  
-- Optional API key header: `X-API-Key: dev-api-key-change-me`
+Use these credentials (exact email):
+
+- Email: `admin@example.com`
+- Password: `Admin123!`
+
+Not `admin@aisales.local`.
+
+```bash
+# Rebuild after pulling login fixes
+git pull origin main
+docker compose up --build -d
+
+# Diagnose
+chmod +x scripts/diagnose-login.sh
+./scripts/diagnose-login.sh
+```
+
+If curl login works but the UI does not, hard-refresh the browser (Ctrl+Shift+R).
+
 
 ### First analysis
 

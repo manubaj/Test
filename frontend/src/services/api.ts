@@ -5,8 +5,12 @@ import type {
   TokenResponse,
 } from "../types/api";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api/v1";
+// Prefer same-origin `/api/v1` (nginx proxies to backend in Docker).
+// Override with VITE_API_BASE_URL only for local Vite dev against a remote API.
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(
+  /\/$/,
+  ""
+);
 
 function authHeaders(): HeadersInit {
   const token = localStorage.getItem("access_token");
@@ -20,13 +24,20 @@ function authHeaders(): HeadersInit {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      ...authHeaders(),
-      ...(init?.headers || {}),
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        ...authHeaders(),
+        ...(init?.headers || {}),
+      },
+    });
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_BASE}. Is the backend running? Try http://localhost:8000/api/v1/health`
+    );
+  }
   if (!response.ok) {
     let detail = response.statusText;
     try {
