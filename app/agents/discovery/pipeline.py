@@ -44,7 +44,7 @@ class DemandDiscoveryAgent:
 
     name = "agent_1_demand_discovery"
 
-    def __init__(self, *, max_queries: int = 48, results_per_query: int = 8) -> None:
+    def __init__(self, *, max_queries: int = 28, results_per_query: int = 6) -> None:
         self.max_queries = max_queries
         self.results_per_query = results_per_query
         self.search = PublicWebSearch()
@@ -138,14 +138,14 @@ class CompanyWebsiteEnrichmentAgent:
             enriched = []
             candidates = state.get("candidates") or []
             # Cap crawl volume for a single run
-            for candidate in candidates[:160]:
+            for candidate in candidates[:100]:
                 website = self._guess_website(candidate)
                 crawl_text = ""
                 industry = None
                 location = None
                 if website:
                     try:
-                        result = await crawler.crawl(website, max_pages=4)
+                        result = await crawler.crawl(website, max_pages=2)
                         crawl_text = result.combined_text
                         candidate["website"] = website
                         candidate["crawl"] = {

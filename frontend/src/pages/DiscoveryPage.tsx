@@ -19,11 +19,30 @@ export default function DiscoveryPage() {
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
   const [selectedLead, setSelectedLead] = useState<DiscoveryLead | null>(null);
+  const [statusNote, setStatusNote] = useState(
+    "No discovery run yet — click Start discovery."
+  );
 
   async function refreshRuns() {
     const list = await api.listDiscoveryRuns();
     setRuns(list);
     return list;
+  }
+
+  async function loadRunDetails(run: DiscoveryRun) {
+    setActiveRun(run);
+    const phase =
+      (run.summary as { message?: string } | null | undefined)?.message ||
+      run.status;
+    setStatusNote(phase);
+    if (run.status === "completed") {
+      setLeads(await api.getDiscoveryLeads(run.id));
+    } else if (run.status === "failed") {
+      setLeads([]);
+      setError(run.error_message || "Discovery run failed");
+    } else {
+      setLeads([]);
+    }
   }
 
   useEffect(() => {
@@ -37,36 +56,81 @@ export default function DiscoveryPage() {
         setAgents(ag.agents);
         const list = await refreshRuns();
         if (list[0]) {
-          setActiveRun(list[0]);
-          setLeads(await api.getDiscoveryLeads(list[0].id));
+          await loadRunDetails(list[0]);
+          if (list[0].status === "running" || list[0].status === "pending") {
+            setRunning(true);
+          }
+        } else {
+          setStatusNote("No discovery run yet — click Start discovery.");
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load discovery");
+        setStatusNote("Could not load discovery API.");
       }
     })();
   }, []);
+
+  // Poll while a run is in progress
+  useEffect(() => {
+    if (!activeRun) return;
+    if (activeRun.status !== "running" && activeRun.status !== "pending") return;
+
+    const timer = window.setInterval(() => {
+      void (async () => {
+        try {
+          const latest = await api.getDiscoveryRun(activeRun.id);
+          setActiveRun(latest);
+          const msg =
+            (latest.summary as { message?: string } | null | undefined)?.message ||
+            latest.status;
+          setStatusNote(msg);
+          if (latest.status === "completed") {
+            setLeads(await api.getDiscoveryLeads(latest.id));
+            setRunning(false);
+            await refreshRuns();
+          } else if (latest.status === "failed") {
+            setError(latest.error_message || "Discovery failed");
+            setRunning(false);
+            await refreshRuns();
+          }
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Polling failed");
+        }
+      })();
+    }, 3000);
+
+    return () => window.clearInterval(timer);
+  }, [activeRun?.id, activeRun?.status]);
 
   async function startRun() {
     setRunning(true);
     setError(null);
     setSelectedLead(null);
+    setLeads([]);
+    setStatusNote("Starting discovery…");
     try {
       const run = await api.startDiscovery(100);
       setActiveRun(run);
-      setLeads(await api.getDiscoveryLeads(run.id));
+      setStatusNote(
+        (run.summary as { message?: string } | null | undefined)?.message ||
+          "Discovery running in background…"
+      );
       await refreshRuns();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Discovery failed");
-    } finally {
       setRunning(false);
+      setStatusNote("Start failed — see error above.");
     }
   }
 
   async function openRun(run: DiscoveryRun) {
-    setActiveRun(run);
+    setError(null);
     setSelectedLead(null);
-    setLeads(await api.getDiscoveryLeads(run.id));
+    await loadRunDetails(run);
+    setRunning(run.status === "running" || run.status === "pending");
   }
+
+  const statusLabel = activeRun?.status || "none";
 
   return (
     <div className="app-shell">
@@ -81,7 +145,7 @@ export default function DiscoveryPage() {
           <Link className="btn" to="/companies">
             Manual company analysis
           </Link>
-          {activeRun && (
+          {activeRun?.status === "completed" && (
             <>
               <button
                 className="btn"
@@ -111,19 +175,25 @@ export default function DiscoveryPage() {
             onClick={() => void startRun()}
             disabled={running}
           >
-            {running ? "Discovering leads…" : "Start discovery (100 leads)"}
+            {running ? "Discovery running…" : "Start discovery (100 leads)"}
           </button>
         </div>
         <p className="muted">
-          No manual ERP input needed. The system searches LinkedIn-indexed jobs
-          and the public web for companies showing demand for major ERP
-          solutions (IFS, SAP, Oracle, Infor, Dynamics, NetSuite, and more),
-          then visits company websites for decision-maker contacts.
+          No manual ERP input needed. Click <strong>Start discovery</strong> —
+          status should change from <code>none</code> → <code>running</code> →{" "}
+          <code>completed</code> (usually a few minutes).
         </p>
         {error && <p className="error">{error}</p>}
+        <p className="muted" style={{ fontFamily: "var(--font-mono)" }}>
+          {statusNote}
+        </p>
         <div className="grid-3" style={{ marginTop: "0.75rem" }}>
           {agents.map((a) => (
-            <div key={a.id} className="pill" style={{ display: "block", padding: "0.65rem" }}>
+            <div
+              key={a.id}
+              className="pill"
+              style={{ display: "block", padding: "0.65rem" }}
+            >
               <strong>
                 Agent {a.id}. {a.name}
               </strong>
@@ -158,15 +228,32 @@ export default function DiscoveryPage() {
           <h2>
             Leads{" "}
             {activeRun
-              ? `(${leads.length}/${activeRun.target_lead_count}) · score sorted`
+              ? `(${leads.length}/${activeRun.target_lead_count})`
               : ""}
           </h2>
-          <span className="pill">
-            run status: {activeRun?.status || "none"}
-          </span>
+          <span className="pill">run status: {statusLabel}</span>
         </div>
-        {runs.length > 1 && (
-          <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", marginBottom: "0.75rem" }}>
+        {statusLabel === "none" && (
+          <p className="muted">
+            Status is <strong>none</strong> because no run exists yet. Press{" "}
+            <strong>Start discovery (100 leads)</strong> above.
+          </p>
+        )}
+        {statusLabel === "running" && (
+          <p className="muted">
+            Agents are working in the background. This page refreshes every 3
+            seconds…
+          </p>
+        )}
+        {runs.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              gap: "0.4rem",
+              flexWrap: "wrap",
+              marginBottom: "0.75rem",
+            }}
+          >
             {runs.slice(0, 6).map((r) => (
               <button
                 key={r.id}
@@ -214,8 +301,9 @@ export default function DiscoveryPage() {
             {!leads.length && (
               <tr>
                 <td colSpan={5} className="muted">
-                  No leads yet. Click <strong>Start discovery</strong> to find
-                  companies looking for ERP solutions.
+                  {statusLabel === "running"
+                    ? "Leads will appear when the run completes…"
+                    : "No leads yet. Click Start discovery."}
                 </td>
               </tr>
             )}
@@ -245,7 +333,11 @@ export default function DiscoveryPage() {
           <p>
             <strong>LinkedIn:</strong>{" "}
             {selectedLead.linkedin_url ? (
-              <a href={selectedLead.linkedin_url} target="_blank" rel="noreferrer">
+              <a
+                href={selectedLead.linkedin_url}
+                target="_blank"
+                rel="noreferrer"
+              >
                 {selectedLead.linkedin_url}
               </a>
             ) : (

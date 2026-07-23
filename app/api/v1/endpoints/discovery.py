@@ -6,7 +6,7 @@ import csv
 import io
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
@@ -16,7 +16,7 @@ from app.api.deps import CurrentUser, DbSession, enforce_rate_limit, require_rol
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.common import ORMModel
-from app.services.discovery import DiscoveryService
+from app.services.discovery import DiscoveryService, execute_discovery_run
 
 router = APIRouter(prefix="/discovery", tags=["ERP Demand Discovery"])
 
@@ -73,19 +73,21 @@ async def list_discovery_agents(user: CurrentUser) -> dict:
 async def start_discovery_run(
     payload: DiscoveryRunCreate,
     db: DbSession,
+    background_tasks: BackgroundTasks,
     user: User = Depends(require_roles(UserRole.ADMIN, UserRole.ANALYST)),
 ) -> DiscoveryRunRead:
     """
-    Start a global discovery run.
+    Start a global discovery run in the background.
 
-    Searches LinkedIn-indexed + web signals for companies needing hardcoded
-    ERP offerings and returns up to ``target_lead_count`` leads (default 100).
+    Returns immediately with ``status=running``. Poll
+    ``GET /discovery/runs/{id}`` until status is ``completed`` or ``failed``.
     """
     service = DiscoveryService(db)
-    run = await service.start_run(
+    run = await service.create_run(
         created_by=user.id,
         target_lead_count=payload.target_lead_count,
     )
+    background_tasks.add_task(execute_discovery_run, run.id)
     return run
 
 
