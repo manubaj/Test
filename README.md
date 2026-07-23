@@ -89,24 +89,20 @@ Restart backend: `docker compose up -d backend`
 
 ---
 
-## Six AI agents (one tool)
+## Primary product: ERP demand discovery
 
-| # | Agent |
-|---|-------|
-| 1 | Website Intelligence |
-| 2 | ERP Opportunity Detection |
-| 3 | Technology Detection |
-| 4 | Hiring Intelligence |
-| 5 | Decision Maker Finder |
-| 6 | Lead Scoring |
+After login, the home page is **discovery** (not single-company analysis).
+
+1. Click **Start discovery (100 leads)**  
+2. System searches LinkedIn-indexed + web signals for companies needing hardcoded ERPs  
+3. Opens company sites for decision-maker contacts (name, title, location, email, phone when public)  
+4. Export CSV/Excel for outreach  
+
+Details: [docs/DISCOVERY.md](docs/DISCOVERY.md)
 
 ```bash
-python -m app.agents --list-agents
-python -m app.agents --name "Acme" --website https://example.com
+python -m app.agents --discover --leads 100
 ```
-
-API: `GET /api/v1/agents` · `POST /api/v1/agents/run`  
-Details: [docs/AGENTS.md](docs/AGENTS.md)
 
 
 Clean architecture layout:

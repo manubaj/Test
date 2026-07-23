@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../services/auth";
 import type { Company } from "../types/api";
@@ -62,15 +62,12 @@ export default function DashboardPage() {
       <header className="topbar">
         <div className="brand">
           <strong>SignalForge</strong>
-          <span>ERP sales intelligence · {username}</span>
+          <span>
+            Manual company analysis · {username} ·{" "}
+            <Link to="/">← Discovery home</Link>
+          </span>
         </div>
         <div className="topbar-actions">
-          <button className="btn" onClick={() => void api.exportCsv()}>
-            Export CSV
-          </button>
-          <button className="btn" onClick={() => void api.exportExcel()}>
-            Export Excel
-          </button>
           <button className="btn" onClick={logout}>
             Sign out
           </button>

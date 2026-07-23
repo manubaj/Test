@@ -5,7 +5,6 @@ import type {
   TokenResponse,
 } from "../types/api";
 
-// Prefer same-origin `/api/v1` (nginx / Vite proxy → backend).
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || "/api/v1").replace(
   /\/$/,
   ""
@@ -57,15 +56,53 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (response.status === 204) return undefined as T;
-
   if (!contentType.includes("application/json")) {
-    // Likely Vite/nginx HTML fallback instead of the API
     throw new Error(
       `API returned HTML instead of JSON from ${url}. Rebuild frontend or start backend on :8000.`
     );
   }
-
   return response.json();
+}
+
+export interface DiscoveryRun {
+  id: string;
+  status: string;
+  target_lead_count: number;
+  leads_found: number;
+  query_count: number;
+  error_message?: string | null;
+  summary?: {
+    agent_trace?: Array<{
+      agent_name: string;
+      status: string;
+      duration_ms: number;
+      notes?: string[];
+    }>;
+    agents?: Array<{ id: string; name: string; responsibility: string }>;
+  } | null;
+}
+
+export interface DiscoveryLead {
+  id: string;
+  run_id: string;
+  company_name: string;
+  website?: string | null;
+  linkedin_url?: string | null;
+  location?: string | null;
+  industry?: string | null;
+  matched_offerings?: string[] | null;
+  lead_score?: number | string | null;
+  score_explanation?: string | null;
+  company_summary?: string | null;
+  decision_makers?: Array<{
+    name?: string;
+    designation?: string;
+    location?: string;
+    email?: string;
+    phone?: string;
+    linkedin_search?: string;
+  }> | null;
+  source_urls?: string[] | null;
 }
 
 export const api = {
@@ -77,19 +114,59 @@ export const api = {
       admin_email: string;
     }>("/ready");
   },
-  async loginHelp() {
-    return request<{
-      email: string;
-      password: string;
-      admin_exists: boolean;
-    }>("/auth/login-help");
-  },
   login(email: string, password: string) {
     return request<TokenResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
   },
+
+  // Discovery (primary product flow)
+  listOfferings() {
+    return request<{ count: number; offerings: Array<Record<string, unknown>> }>(
+      "/discovery/offerings"
+    );
+  },
+  listDiscoveryAgents() {
+    return request<{
+      tool: string;
+      agents: Array<{ id: string; name: string; responsibility: string }>;
+    }>("/discovery/agents");
+  },
+  startDiscovery(target_lead_count = 100) {
+    return request<DiscoveryRun>("/discovery/runs", {
+      method: "POST",
+      body: JSON.stringify({ target_lead_count }),
+    });
+  },
+  listDiscoveryRuns() {
+    return request<DiscoveryRun[]>("/discovery/runs");
+  },
+  getDiscoveryRun(id: string) {
+    return request<DiscoveryRun>(`/discovery/runs/${id}`);
+  },
+  getDiscoveryLeads(id: string) {
+    return request<DiscoveryLead[]>(`/discovery/runs/${id}/leads?limit=100`);
+  },
+  async exportDiscoveryCsv(runId: string) {
+    const response = await fetch(`${API_BASE}/discovery/runs/${runId}/export/csv`, {
+      headers: authHeaders(),
+    });
+    if (!response.ok) throw new Error("CSV export failed");
+    const blob = await response.blob();
+    downloadBlob(blob, `discovery_${runId}.csv`);
+  },
+  async exportDiscoveryExcel(runId: string) {
+    const response = await fetch(
+      `${API_BASE}/discovery/runs/${runId}/export/excel`,
+      { headers: authHeaders() }
+    );
+    if (!response.ok) throw new Error("Excel export failed");
+    const blob = await response.blob();
+    downloadBlob(blob, `discovery_${runId}.xlsx`);
+  },
+
+  // Legacy company analysis helpers
   searchCompanies(params: Record<string, string | number | undefined>) {
     const qs = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
@@ -121,24 +198,7 @@ export const api = {
       { method: "POST" }
     );
   },
-  async exportCsv() {
-    const blob = (await requestBlob("/export/csv")) as Blob;
-    downloadBlob(blob, "leads.csv");
-  },
-  async exportExcel() {
-    const blob = (await requestBlob("/export/excel")) as Blob;
-    downloadBlob(blob, "leads.xlsx");
-  },
 };
-
-async function requestBlob(path: string): Promise<Blob> {
-  const url = `${API_BASE}${path}`;
-  const response = await fetch(url, { headers: authHeaders() });
-  if (!response.ok) {
-    throw new Error(`Export failed (${response.status})`);
-  }
-  return response.blob();
-}
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);

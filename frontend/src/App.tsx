@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./services/auth";
 import LoginPage from "./pages/LoginPage";
+import DiscoveryPage from "./pages/DiscoveryPage";
 import DashboardPage from "./pages/DashboardPage";
 import CompanyPage from "./pages/CompanyPage";
 
@@ -16,6 +17,14 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route
         path="/"
+        element={
+          <PrivateRoute>
+            <DiscoveryPage />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/companies"
         element={
           <PrivateRoute>
             <DashboardPage />

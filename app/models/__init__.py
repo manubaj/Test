@@ -9,6 +9,7 @@ from app.models.analysis import Analysis
 from app.models.company import Company
 from app.models.contact import Contact
 from app.models.crawl_log import CrawlLog
+from app.models.discovery import DiscoveryLead, DiscoveryRun
 from app.models.enums import (
     AnalysisStatus,
     ContactRole,
@@ -26,7 +27,6 @@ from app.models.setting import Setting
 from app.models.technology import Technology
 from app.models.user import User
 
-# Canonical table names expected by Module 2 verification
 EXPECTED_TABLES: tuple[str, ...] = (
     "users",
     "settings",
@@ -38,6 +38,8 @@ EXPECTED_TABLES: tuple[str, ...] = (
     "crawl_logs",
     "jobs",
     "reports",
+    "discovery_runs",
+    "discovery_leads",
 )
 
 __all__ = [
@@ -47,6 +49,8 @@ __all__ = [
     "Contact",
     "ContactRole",
     "CrawlLog",
+    "DiscoveryLead",
+    "DiscoveryRun",
     "EmployeeSizeBand",
     "EXPECTED_TABLES",
     "Job",

@@ -59,8 +59,8 @@ export default function LoginPage() {
         </p>
         <h1>SignalForge</h1>
         <p className="muted">
-          Sign in to search companies, run website intelligence, and export
-          scored ERP leads.
+          Sign in to discover companies looking for ERP solutions and export
+          decision-maker contacts for outreach.
         </p>
         <p
           className="muted"
