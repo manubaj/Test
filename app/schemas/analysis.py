@@ -96,3 +96,8 @@ class CompanyIntelligenceBundle(BaseModel):
     lead_score: Optional[LeadScoreRead] = None
     report: Optional[ReportRead] = None
     news: list[dict[str, Any]] = Field(default_factory=list)
+    agents: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Outputs from the six analysis agents",
+    )
+    agent_trace: list[dict[str, Any]] = Field(default_factory=list)

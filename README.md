@@ -89,30 +89,25 @@ Restart backend: `docker compose up -d backend`
 
 ---
 
-## Architecture
+## Six AI agents (one tool)
 
-```text
-React (SignalForge UI)
-        │
-        ▼
-FastAPI REST (/api/v1) + JWT / API Key + RBAC + rate limits
-        │
-        ▼
-AnalysisService → LangGraph workflow
-        │
-        ├─ Website Intelligence (crawl)
-        ├─ Technology Detection
-        ├─ ERP Opportunity Detection
-        ├─ Hiring Intelligence
-        ├─ Decision Maker Finder
-        ├─ Lead Scoring
-        └─ Report Generator
-        │
-        ▼
-PostgreSQL (companies, analysis, contacts, technologies, …)
-        │
-Ollama (optional local LLM) / OpenAI (optional)
+| # | Agent |
+|---|-------|
+| 1 | Website Intelligence |
+| 2 | ERP Opportunity Detection |
+| 3 | Technology Detection |
+| 4 | Hiring Intelligence |
+| 5 | Decision Maker Finder |
+| 6 | Lead Scoring |
+
+```bash
+python -m app.agents --list-agents
+python -m app.agents --name "Acme" --website https://example.com
 ```
+
+API: `GET /api/v1/agents` · `POST /api/v1/agents/run`  
+Details: [docs/AGENTS.md](docs/AGENTS.md)
+
 
 Clean architecture layout:
 

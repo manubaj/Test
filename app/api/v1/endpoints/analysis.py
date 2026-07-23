@@ -79,8 +79,12 @@ async def company_intelligence(
     report = await ReportRepository(db).latest_for_company(company_id)
 
     news = []
+    agents: dict = {}
+    agent_trace: list = []
     if analysis and isinstance(analysis.raw_agent_outputs, dict):
         news = analysis.raw_agent_outputs.get("news") or []
+        agents = analysis.raw_agent_outputs.get("agents") or {}
+        agent_trace = analysis.raw_agent_outputs.get("agent_trace") or []
 
     return CompanyIntelligenceBundle(
         company_id=company_id,
@@ -90,6 +94,8 @@ async def company_intelligence(
         lead_score=score,
         report=report,
         news=news,
+        agents=agents,
+        agent_trace=agent_trace,
     )
 
 

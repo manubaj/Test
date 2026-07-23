@@ -119,6 +119,17 @@ class AnalysisService:
             "lead_score": state.get("lead_score"),
             "report": state.get("report"),
             "news": state.get("news"),
+            "agent_trace": state.get("agent_trace"),
+            "technology_detection": state.get("technology_detection"),
+            "decision_maker_finder": state.get("decision_maker_finder"),
+            "agents": {
+                "agent_1_website_intelligence": state.get("website_intelligence"),
+                "agent_2_erp_opportunity": state.get("erp_opportunity"),
+                "agent_3_technology_detection": state.get("technology_detection"),
+                "agent_4_hiring_intelligence": state.get("hiring_analysis"),
+                "agent_5_decision_maker_finder": state.get("decision_maker_finder"),
+                "agent_6_lead_scoring": state.get("lead_score"),
+            },
         }
 
         crawl = state.get("crawl") or {}

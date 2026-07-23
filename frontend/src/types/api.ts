@@ -83,4 +83,12 @@ export interface IntelligenceBundle {
   lead_score?: LeadScore | null;
   report?: Report | null;
   news: Array<{ title: string; url: string }>;
+  agents?: Record<string, unknown>;
+  agent_trace?: Array<{
+    agent_id: string;
+    agent_name: string;
+    status: string;
+    duration_ms: number;
+    notes?: string[];
+  }>;
 }

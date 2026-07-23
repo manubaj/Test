@@ -91,6 +91,53 @@ export default function CompanyPage() {
 
       {error && <p className="error">{error}</p>}
 
+      <section className="panel">
+        <div className="section-head">
+          <h2>Six AI agents</h2>
+          <span className="pill">
+            {(intel?.agent_trace || []).filter((t) => t.status === "completed").length || 0}
+            /6 completed
+          </span>
+        </div>
+        <p className="muted" style={{ marginTop: 0 }}>
+          One tool runs Website Intelligence → Technology → ERP Opportunity →
+          Hiring → Decision Makers → Lead Scoring (+ report synthesis).
+        </p>
+        <ul className="factor-list">
+          {(intel?.agent_trace || []).length > 0 ? (
+            (intel?.agent_trace || []).map((t) => (
+              <li key={t.agent_id}>
+                <strong>{t.agent_name}</strong>
+                <div className="muted">
+                  {t.status}
+                  {t.duration_ms != null ? ` · ${t.duration_ms}ms` : ""}
+                  {(t.notes || []).length ? ` · ${(t.notes || []).join("; ")}` : ""}
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="muted">
+              Run full analysis to execute all six agents.
+            </li>
+          )}
+        </ul>
+        {intel?.agents && Object.keys(intel.agents).length > 0 && (
+          <pre
+            style={{
+              whiteSpace: "pre-wrap",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.72rem",
+              color: "var(--muted)",
+              maxHeight: 220,
+              overflow: "auto",
+              marginTop: "0.75rem",
+            }}
+          >
+            {JSON.stringify(intel.agents, null, 2).slice(0, 4000)}
+          </pre>
+        )}
+      </section>
+
       <div className="grid-2">
         <section className="panel">
           <div className="section-head">

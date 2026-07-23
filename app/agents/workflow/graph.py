@@ -1,7 +1,7 @@
 """
-LangGraph multi-agent workflow.
+LangGraph multi-agent workflow for the ERP Sales Intelligence Tool.
 
-Pipeline:
+Pipeline order:
 1. Website Intelligence
 2. Technology Detection
 3. ERP Opportunity Detection
@@ -9,15 +9,13 @@ Pipeline:
 5. Decision Maker Finder
 6. Lead Scoring
 7. Report Generator
-
-If LangGraph is unavailable, a sequential async fallback runs the same nodes.
 """
 
 from __future__ import annotations
 
 from typing import Any
 
-from app.agents.base import AgentState
+from app.agents.contracts import AgentState, new_state
 from app.agents.decision_maker.agent import decision_maker_node
 from app.agents.erp_opportunity.agent import erp_opportunity_node
 from app.agents.hiring_intelligence.agent import hiring_intelligence_node
@@ -29,9 +27,10 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+_compiled = None
+
 
 def _build_langgraph():
-    """Compile a LangGraph StateGraph when the library is installed."""
     from langgraph.graph import END, StateGraph
 
     graph = StateGraph(AgentState)
@@ -54,19 +53,15 @@ def _build_langgraph():
     return graph.compile()
 
 
-_compiled = None
-
-
 def get_workflow():
-    """Lazy-compile LangGraph workflow (or None if package missing)."""
     global _compiled
     if _compiled is not None:
         return _compiled
     try:
         _compiled = _build_langgraph()
-        logger.info("LangGraph workflow compiled")
+        logger.info("LangGraph six-agent workflow compiled")
     except Exception as exc:  # noqa: BLE001
-        logger.warning("LangGraph unavailable, using sequential fallback: %s", exc)
+        logger.warning("LangGraph unavailable, sequential fallback: %s", exc)
         _compiled = False
     return _compiled
 
@@ -78,42 +73,34 @@ async def run_analysis_workflow(
     country: str | None = None,
     industry: str | None = None,
 ) -> AgentState:
-    """Execute the full intelligence pipeline for one company."""
-    initial: AgentState = {
-        "company_name": company_name,
-        "website": website,
-        "country": country,
-        "industry": industry,
-        "errors": [],
-    }
+    """
+    Execute the multi-agent pipeline.
 
+    Delegates to ERPSalesIntelligenceTool so API, CLI, and DB persistence
+    all share one implementation.
+    """
+    from app.agents.tool import ERPSalesIntelligenceTool
+
+    tool = ERPSalesIntelligenceTool()
+    # Use sequential path internals to return AgentState (not wrapped dict)
+    state = new_state(
+        company_name=company_name,
+        website=website,
+        country=country,
+        industry=industry,
+    )
     compiled = get_workflow()
     if compiled:
-        # LangGraph supports async invoke via ainvoke
-        result = await compiled.ainvoke(initial)
-        return result  # type: ignore[return-value]
-
-    # Sequential fallback — same agent order, no graph runtime required
-    state: AgentState = initial
-    for node in (
-        website_intelligence_node,
-        technology_detection_node,
-        erp_opportunity_node,
-        hiring_intelligence_node,
-        decision_maker_node,
-        lead_scoring_node,
-        report_generator_node,
-    ):
-        state = await node(state)
-    return state
+        return await compiled.ainvoke(state)  # type: ignore[return-value]
+    return await tool._run_sequential(state)
 
 
 def workflow_result_summary(state: AgentState) -> dict[str, Any]:
-    """Compact summary for API responses / logs."""
     return {
         "lead_score": (state.get("lead_score") or {}).get("score"),
         "opportunities": (state.get("erp_opportunity") or {}).get("opportunities"),
         "technologies": [t.get("name") for t in (state.get("technologies") or [])],
         "contacts": len(state.get("decision_makers") or []),
+        "agents": [t.get("agent_name") for t in (state.get("agent_trace") or [])],
         "errors": state.get("errors") or [],
     }
